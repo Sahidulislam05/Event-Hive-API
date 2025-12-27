@@ -1,5 +1,7 @@
 const express = require("express");
 const User = require("../models/User");
+const Booking = require("../models/Booking");
+const Event = require("../models/Event");
 const router = express.Router();
 const { verifyJWT, verifyAdmin } = require("../middlewares/authMiddleware");
 
@@ -60,6 +62,45 @@ router.get("/role/:email", verifyJWT, async (req, res) => {
   const email = req.params.email;
   const user = await User.findOne({ email });
   res.send({ role: user?.role });
+});
+
+// 5. Admin Deletes a User (Admin only)
+router.delete("/delete/:id", verifyJWT, verifyAdmin, async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).send({ message: "User not found!" });
+    }
+
+    if (user.email === req.tokenEmail) {
+      return res
+        .status(403)
+        .send({ message: "You cannot delete your own admin account!" });
+    }
+
+    const userBookings = await Booking.find({ userEmail: user.email });
+
+    for (const booking of userBookings) {
+      if (booking.status === "confirmed") {
+        await Event.findByIdAndUpdate(booking.eventId, {
+          $inc: { availableSeats: 1 },
+        });
+      }
+    }
+
+    const result = await User.findByIdAndDelete(id);
+    await Booking.deleteMany({ userEmail: user.email });
+
+    res.send({
+      success: true,
+      message: "User and their bookings deleted, seats restored.",
+      result,
+    });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
 });
 
 module.exports = router;
