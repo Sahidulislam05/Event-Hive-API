@@ -20,6 +20,7 @@ const verifyJWT = async (req, res, next) => {
   }
 };
 
+// Role based middleware
 const verifyAdmin = async (req, res, next) => {
   const email = req.tokenEmail;
   const user = await User.findOne({ email });
