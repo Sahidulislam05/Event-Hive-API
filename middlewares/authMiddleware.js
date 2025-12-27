@@ -36,7 +36,7 @@ const verifyAdmin = async (req, res, next) => {
 const verifyManager = async (req, res, next) => {
   const email = req.tokenEmail;
   const user = await User.findOne({ email });
-  if (user?.role !== "event-manager" && user?.role !== "admin") {
+  if (user?.role !== "manager" && user?.role !== "admin") {
     return res.status(403).send({ message: "Manager only access!" });
   }
   next();
