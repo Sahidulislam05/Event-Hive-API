@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema(
     photoURL: String,
     role: {
       type: String,
-      enum: ["user", "event-manager", "admin"],
+      enum: ["user", "manager", "admin"],
       default: "user",
     },
     status: {

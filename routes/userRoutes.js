@@ -49,14 +49,14 @@ router.patch("/admin/:id", verifyJWT, verifyAdmin, async (req, res) => {
   const id = req.params.id;
   const filter = { _id: id };
   const updateDoc = {
-    $set: { role: "event-manager", status: "verified" },
+    $set: { role: "manager", status: "verified" },
   };
   const result = await User.updateOne(filter, updateDoc);
   res.send(result);
 });
 
 // Checking user role
-router.get("/users/role/:email", verifyJWT, async (req, res) => {
+router.get("/role/:email", verifyJWT, async (req, res) => {
   const email = req.params.email;
   const user = await User.findOne({ email });
   res.send({ role: user?.role });
