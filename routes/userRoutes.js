@@ -1,6 +1,7 @@
 const express = require("express");
 const User = require("../models/User");
 const router = express.Router();
+const { verifyJWT, verifyAdmin } = require("../middlewares/authMiddleware");
 
 // 1. Save or Update User (Registration/Login)
 router.post("/", async (req, res) => {
@@ -23,13 +24,13 @@ router.post("/", async (req, res) => {
 });
 
 // 2. Get All Users (Admin only)
-router.get("/", async (req, res) => {
+router.get("/", verifyJWT, verifyAdmin, async (req, res) => {
   const result = await User.find();
   res.send(result);
 });
 
 // 3. Request to become Manager
-router.patch("/request-manager/:email", async (req, res) => {
+router.patch("/request-manager/:email", verifyJWT, async (req, res) => {
   const email = req.params.email;
   const filter = { email: email };
   const user = await User.findOne({ email });
@@ -44,7 +45,7 @@ router.patch("/request-manager/:email", async (req, res) => {
 });
 
 // 4. Admin Approves Manager
-router.patch("/admin/:id", async (req, res) => {
+router.patch("/admin/:id", verifyJWT, verifyAdmin, async (req, res) => {
   const id = req.params.id;
   const filter = { _id: id };
   const updateDoc = {
@@ -55,7 +56,7 @@ router.patch("/admin/:id", async (req, res) => {
 });
 
 // Checking user role
-router.get("/users/role/:email", async (req, res) => {
+router.get("/users/role/:email", verifyJWT, async (req, res) => {
   const email = req.params.email;
   const user = await User.findOne({ email });
   res.send({ role: user?.role });

@@ -1,9 +1,10 @@
 const express = require("express");
 const Event = require("../models/Event");
 const router = express.Router();
+const { verifyJWT } = require("../middlewares/authMiddleware");
 
 // 1. Add New Event
-router.post("/", async (req, res) => {
+router.post("/", verifyJWT, async (req, res) => {
   const eventData = req.body;
   // ensure availableSeats matches totalSeats initially
   eventData.availableSeats = parseInt(eventData.totalSeats);
@@ -25,7 +26,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // 4. Get Events by Manager Email
-router.get("/manager/:email", async (req, res) => {
+router.get("/manager/:email", verifyJWT, async (req, res) => {
   const result = await Event.find({ organizerEmail: req.params.email });
   res.send(result);
 });
