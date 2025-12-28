@@ -79,7 +79,10 @@ router.delete("/:id", verifyJWT, async (req, res) => {
     }
 
     const eventDate = new Date(booking.eventDate);
+    eventDate.setHours(0, 0, 0, 0);
+
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const timeDiff = eventDate - today;
     const daysDiff = timeDiff / (1000 * 3600 * 24);
 
